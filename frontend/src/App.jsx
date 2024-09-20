@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import Form from "./components/Form";
 import Post from "./components/Post";
 
-const urlBaseServer = "http://localhost:3000";
+// Configurar Axios con una base URL
+const api = axios.create({
+  baseURL: "http://localhost:3000", // Asegúrate de que el backend esté corriendo en este puerto
+});
 
 function App() {
   const [titulo, setTitulo] = useState("");
@@ -11,29 +14,48 @@ function App() {
   const [descripcion, setDescripcion] = useState("");
   const [posts, setPosts] = useState([]);
 
+  // Obtener todos los posts
   const getPosts = async () => {
-    const { data: posts } = await axios.get(urlBaseServer + "/posts");
-    setPosts([...posts]);
+    try {
+      const { data: posts } = await api.get("/posts");
+      setPosts(posts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   };
 
+  // Agregar un nuevo post
   const agregarPost = async () => {
-    const post = { titulo, url: imgSrc, descripcion };
-    await axios.post(urlBaseServer + "/posts", post);
-    getPosts();
+    try {
+      const post = { titulo, url: imgSrc, descripcion };
+      await api.post("/posts", post);
+      getPosts(); // Actualizar la lista de posts
+    } catch (error) {
+      console.error("Error adding post:", error);
+    }
   };
 
-  // este método se utilizará en el siguiente desafío
+  // Incrementar likes de un post
   const like = async (id) => {
-    await axios.put(urlBaseServer + `/posts/like/${id}`);
-    getPosts();
+    try {
+      await api.put(`/posts/like/${id}`);
+      getPosts(); // Actualizar la lista de posts
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
   };
 
-  // este método se utilizará en el siguiente desafío
+  // Eliminar un post
   const eliminarPost = async (id) => {
-    await axios.delete(urlBaseServer + `/posts/${id}`);
-    getPosts();
+    try {
+      await api.delete(`/posts/${id}`);
+      getPosts(); // Actualizar la lista de posts
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
   };
 
+  // Obtener los posts al montar el componente
   useEffect(() => {
     getPosts();
   }, []);
